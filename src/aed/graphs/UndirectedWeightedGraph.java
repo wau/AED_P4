@@ -14,7 +14,7 @@ public class UndirectedWeightedGraph {
     {
         this.vCount = vCount;
         this.eCount = 0;
-        this.adj = (LinkedList<UndirectedEdge>[]) new Object[vCount];
+        this.adj = (LinkedList<UndirectedEdge>[]) new LinkedList[vCount];
 
         //Initialise all adjacency lists
         for(int i = 0 ; i < vCount; i++)

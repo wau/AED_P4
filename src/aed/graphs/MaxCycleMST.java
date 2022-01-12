@@ -1,22 +1,28 @@
 package aed.graphs;
+import java.util.LinkedList;
 
 public class MaxCycleMST {
 
 
-    private static UndirectedWeightedGraph mstGraph;
+    public UndirectedWeightedGraph mstGraph;
+    int vCount;
    // UndirectedWeightedGraph mstGraph;
 
     MaxCycleMST(UndirectedWeightedGraph g) {
-
+        mstGraph = new UndirectedWeightedGraph(g.vCount());
+        vCount = g.vCount();
     }
 
+    UndirectedWeightedGraph buildMST() {
+        return null;
+
+        mstGraph.par
+    }
    /* UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph g) {
         retur
     }
 
-    UndirectedWeightedGraph buildMST() {
 
-    }
 
     UndirectedWeightedGraph getMST() {
 
@@ -24,9 +30,14 @@ public class MaxCycleMST {
 
     public static void main(String[] args) {
         UndirectedWeightedGraph test = new UndirectedWeightedGraph(2);
-        mstGraph.addEdge(new UndirectedEdge(0, 1, 3));
+      //  test.ad(new UndirectedEdge(0, 1, 3));
 
-        System.out.println(mstGraph.toString());
+        MaxCycleMST mst = new MaxCycleMST(test);
+
+        System.out.println(mst.vCount);
+
+
+     //   System.out.println(test.toString());
 
     }
 
