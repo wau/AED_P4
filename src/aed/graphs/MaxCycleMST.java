@@ -5,16 +5,16 @@ package aed.graphs;
 
 public class MaxCycleMST {
 
-    public class CycleDetector {
+    static public class CycleDetector {
         private boolean[] visited;
-        private boolean[] inCurrentPath;
+      //  private boolean[] inCurrentPath;
         private UndirectedWeightedGraph graph;
         private boolean hasCycle;
 
         public CycleDetector(UndirectedWeightedGraph g) {
             this.graph = g;
             this.visited = new boolean[g.vCount()];
-            this.inCurrentPath = new boolean[g.vCount()];
+        //    this.inCurrentPath = new boolean[g.vCount()];
         }
 
         public void search() {
@@ -23,7 +23,7 @@ public class MaxCycleMST {
             //initialize array to false
             for (int i = 0; i < vertices; i++) {
                 this.visited[i] = false;
-                this.inCurrentPath[i] = false;
+              //  this.inCurrentPath[i] = false;
             }
             for (int i = 0; i < vertices; i++) {
                 //start a new search for each vertex that has not been visited yet
@@ -34,22 +34,31 @@ public class MaxCycleMST {
 
         private void visit(int v, int parent)
         {
-            this.inCurrentPath[v] = true;
+            //this.inCurrentPath[v] = true;
             this.visited[v] = true;
             for(UndirectedEdge adj : graph.adj(v))
             {
                 if(this.hasCycle) return;
-                else if(this.inCurrentPath[adj])
-                {
+
+                int v1 = adj.other(v);
+                //int v2 = adj.v2();
+
+                if (visited[v1] && v1 != parent) {
                     this.hasCycle = true;
                     return;
                 }
-                else {
+              /*  else if (visited[v2] && v2 != parent) {
+                    this.hasCycle = true;
+                    return;
+                }*/
 
-                }
+                if (!visited[v1])
+                    visit(v1, v);
 
+             //   if (!visited[v2])
+               //     visit(v2, v);
             }
-            this.inCurrentPath[v] = false;
+          //  this.inCurrentPath[v] = false;
         }
         public boolean hasCycle()
         {
@@ -88,13 +97,25 @@ public class MaxCycleMST {
 
 
     public static void main(String[] args) {
-        UndirectedWeightedGraph test = new UndirectedWeightedGraph(8);
+        UndirectedWeightedGraph test = new UndirectedWeightedGraph(7);
         //vcount numero maximo de vertices basicamente
         test.addEdge(new UndirectedEdge(0, 1, 3));
-        test.addEdge(new UndirectedEdge(0, 7, 10));
+        test.addEdge(new UndirectedEdge(0, 4, 10));
 
         test.addEdge(new UndirectedEdge(1, 2, 4));
         test.addEdge(new UndirectedEdge(2, 3, 4));
+
+        //test.addEdge(new UndirectedEdge(4, 3, 5));
+        test.addEdge(new UndirectedEdge(4, 5, 4));
+        test.addEdge(new UndirectedEdge(4, 6, 4));
+       // test.addEdge(new UndirectedEdge(5, 6, 4));
+
+
+
+        CycleDetector cycleDetector = new CycleDetector(test);
+        cycleDetector.search();
+
+        System.out.println(cycleDetector.hasCycle());
 
         System.out.println(test.toString());
 
