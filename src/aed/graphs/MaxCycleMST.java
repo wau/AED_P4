@@ -1,67 +1,86 @@
 package aed.graphs;
 
+
+// minimum spanning tree
+
 public class MaxCycleMST {
 
-    public class Cycle
-    {
-        private boolean[] marked;
+    public class CycleDetector {
+        private boolean[] visited;
+        private boolean[] inCurrentPath;
+        private UndirectedWeightedGraph graph;
         private boolean hasCycle;
-        public Cycle(UndirectedWeightedGraph G)
-        {
-            marked = new boolean[G.V()];
-            for (int s = 0; s < G.V(); s++)
-                if (!marked[s])
-                    dfs(G, s, s);
-        }
-        private void dfs(UndirectedWeightedGraph G, int v, int u)
-        {
-            marked[v] = true;
-            for (UndirectedEdge w : G.adj(v))
-                if (!marked[w])
-                    dfs(G, w, v);
-                else if (w != u) hasCycle = true;
+
+        public CycleDetector(UndirectedWeightedGraph g) {
+            this.graph = g;
+            this.visited = new boolean[g.vCount()];
+            this.inCurrentPath = new boolean[g.vCount()];
         }
 
-        public boolean hasCycle()
-        { return hasCycle; }
-    }
+        public void search() {
+            int vertices = this.graph.vCount();
+            this.hasCycle = false;
+            //initialize array to false
+            for (int i = 0; i < vertices; i++) {
+                this.visited[i] = false;
+                this.inCurrentPath[i] = false;
+            }
+            for (int i = 0; i < vertices; i++) {
+                //start a new search for each vertex that has not been visited yet
+                if (!this.visited[i]) visit(i, i-1);
+                if (this.hasCycle) return;
+            }
+        }
 
-        private void visit(int v) {
+        private void visit(int v, int parent)
+        {
             this.inCurrentPath[v] = true;
             this.visited[v] = true;
-            for (UndirectedEdge adj : graph.adj(v)) {
-
-                if (this.hasCycle) return;
-                else if (!this.visited[adj]) visit(adj);
-
-                else if (this.inCurrentPath[adj]) {
+            for(UndirectedEdge adj : graph.adj(v))
+            {
+                if(this.hasCycle) return;
+                else if(this.inCurrentPath[adj])
+                {
                     this.hasCycle = true;
                     return;
                 }
+                else {
+
+                }
+
             }
             this.inCurrentPath[v] = false;
         }
-
-        public boolean hasCycle() {
+        public boolean hasCycle()
+        {
             return this.hasCycle;
         }
+
     }
 
 
-    private static UndirectedWeightedGraph mstGraph;
+    private UndirectedWeightedGraph ogGraph;
+    private UndirectedWeightedGraph mstGraph;
+
+
+
    // UndirectedWeightedGraph mstGraph;
 
     MaxCycleMST(UndirectedWeightedGraph g) {
-
+        ogGraph = g;
+        mstGraph = new UndirectedWeightedGraph(ogGraph.vCount());
     }
 
+
+    UndirectedWeightedGraph buildMST() {
+
+        return null;
+    }
    /* UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph g) {
         retur
     }
 
-    UndirectedWeightedGraph buildMST() {
 
-    }
 
     UndirectedWeightedGraph getMST() {
 
@@ -70,6 +89,7 @@ public class MaxCycleMST {
 
     public static void main(String[] args) {
         UndirectedWeightedGraph test = new UndirectedWeightedGraph(8);
+        //vcount numero maximo de vertices basicamente
         test.addEdge(new UndirectedEdge(0, 1, 3));
         test.addEdge(new UndirectedEdge(0, 7, 10));
 
@@ -77,6 +97,8 @@ public class MaxCycleMST {
         test.addEdge(new UndirectedEdge(2, 3, 4));
 
         System.out.println(test.toString());
+
+      //  System.out.println(test.eCount());
 
        /* for (int i = 0; i < test.vCount() ; i++)
         {
