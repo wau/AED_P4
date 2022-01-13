@@ -2,6 +2,51 @@ package aed.graphs;
 
 public class MaxCycleMST {
 
+    public class Cycle
+    {
+        private boolean[] marked;
+        private boolean hasCycle;
+        public Cycle(UndirectedWeightedGraph G)
+        {
+            marked = new boolean[G.V()];
+            for (int s = 0; s < G.V(); s++)
+                if (!marked[s])
+                    dfs(G, s, s);
+        }
+        private void dfs(UndirectedWeightedGraph G, int v, int u)
+        {
+            marked[v] = true;
+            for (UndirectedEdge w : G.adj(v))
+                if (!marked[w])
+                    dfs(G, w, v);
+                else if (w != u) hasCycle = true;
+        }
+
+        public boolean hasCycle()
+        { return hasCycle; }
+    }
+
+        private void visit(int v) {
+            this.inCurrentPath[v] = true;
+            this.visited[v] = true;
+            for (UndirectedEdge adj : graph.adj(v)) {
+
+                if (this.hasCycle) return;
+                else if (!this.visited[adj]) visit(adj);
+
+                else if (this.inCurrentPath[adj]) {
+                    this.hasCycle = true;
+                    return;
+                }
+            }
+            this.inCurrentPath[v] = false;
+        }
+
+        public boolean hasCycle() {
+            return this.hasCycle;
+        }
+    }
+
 
     private static UndirectedWeightedGraph mstGraph;
    // UndirectedWeightedGraph mstGraph;
@@ -35,6 +80,7 @@ public class MaxCycleMST {
 
        /* for (int i = 0; i < test.vCount() ; i++)
         {
+
             System.out.print(i + ": ");
             for(UndirectedEdge e : test.adj(i))
             {
