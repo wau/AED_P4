@@ -118,7 +118,7 @@ public class MaxCycleMST {
 
                 if (!visited[v1])
                 {
-                    maxPQ.add(adj);
+               //     maxPQ.add(adj);
                     visit(v1, v);
                 }
             }
