@@ -9,6 +9,7 @@ import java.util.*;
 public class MaxCycleMST {
 
     int i = 0;
+    boolean buildMstCalled = false;
 
     int calculatePathWeight(UndirectedWeightedGraph g) {
         int result = 0;
@@ -56,11 +57,12 @@ public class MaxCycleMST {
                 this.visited[i] = false;
                 //  this.inCurrentPath[i] = false;
             }
-            for (int i = 0; i < vertices; i++) {
+            visit(0, -1);
+            /*for (int i = 0; i < vertices; i++) {
                 //start a new search for each vertex that has not been visited yet
                 if (!this.visited[i]) visit(i, i-1);
                 if (this.hasCycle) return;
-            }
+            }*/
         }
 
         private int coutVerticesGraph(UndirectedWeightedGraph graph, int v) {
@@ -170,6 +172,7 @@ public class MaxCycleMST {
 
 
     public UndirectedWeightedGraph buildMST() {
+        buildMstCalled = true;
         int nVertices = ogGraph.vCount();
 
         HashMap<UndirectedEdge, Boolean>  hashMap = new HashMap<UndirectedEdge, Boolean>();
@@ -214,9 +217,12 @@ public class MaxCycleMST {
 
 
         int mstVcount = 0;
-        for ( UndirectedEdge edge : ogGraph.adj(0))
+        helperClass.search();
+
+        for ( UndirectedEdge edge : g.adj(0))
             mstVcount = helperClass.coutVerticesGraph(g, edge.v1());
 
+      //  System.out.println(mstVcount);
         return helperClass.determineMaxInCycle(g, mstVcount);
     }
 
@@ -224,7 +230,9 @@ public class MaxCycleMST {
 
     public UndirectedWeightedGraph getMST() {
         //buildMST();
-        return mstGraph;
+        if (buildMstCalled)
+            return mstGraph;
+        else return null;
     }
 
     public void test() {
@@ -270,6 +278,18 @@ public class MaxCycleMST {
         test.addEdge(new UndirectedEdge(    2, 6, 1));
         test.addEdge(new UndirectedEdge(    2, 6, 3));
 
+       /* test.addEdge(new UndirectedEdge(    0, 1, 4));
+        test.addEdge(new UndirectedEdge(    1, 2, 3));
+        test.addEdge(new UndirectedEdge(    0, 2, 5));*/
+
+        MaxCycleMST maxCycleMST = new MaxCycleMST(test);
+
+        //System.out.println(maxCycleMST.determineMaxInCycle(test));
+
+
+
+
+
 
         /*test.addEdge(new UndirectedEdge(0, 2, 3));
         test.addEdge(new UndirectedEdge(0, 3, 2));
@@ -299,7 +319,7 @@ public class MaxCycleMST {
         System.out.println(cycleDetector.determineMaxInCycle(test, Vcount).toString());*/
 
 
-        MaxCycleMST maxCycleMST = new MaxCycleMST(test);
+      //  MaxCycleMST maxCycleMST = new MaxCycleMST(test);
         LazyPrim lazyPrim = new LazyPrim(test);
 
         lazyPrim.buildMST();
