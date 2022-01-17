@@ -2,7 +2,6 @@ package aed.graphs;
 
 import java.util.HashMap;
 
-import javafx.util.Pair;
 
 public class PipeCalculator {
 
@@ -25,15 +24,20 @@ public class PipeCalculator {
             this.mstGraph.addEdge(new UndirectedEdge(i, n+1, well[i]));
         }
 
-        for (int i  = 0; i < costs.length; i++) {
-            for (int j = 0; j < costs.length; j++) {
 
+        for (int i = 0; i < n; i++) {
+            for (int j = i+1; j < n; j++) {
+                this.mstGraph.addEdge(new UndirectedEdge(i, j, costs[i][j]));
+                //System.out.println(i + " " + j);
             }
+
+
         }
+        return null;
 
 
     }
-    UndirectedWeightedGraph calculateSolution(UndirectedWeightedGraph g) {
+   /* UndirectedWeightedGraph calculateSolution(UndirectedWeightedGraph g) {
 
     }
     UndirectedWeightedGraph calculateSolution() {
@@ -41,9 +45,20 @@ public class PipeCalculator {
     }
     UndirectedWeightedGraph getMST() {
 
-    }
+    }*/
 
     public static void main(String[] args) {
+
+        int n = 5;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = i+1; j < n; j++) {
+                //this.mstGraph.addEdge(new UndirectedEdge(i, j, costs[i][j]));
+                System.out.println(i + " " + j);
+            }
+
+
+        }
 
     }
 }
