@@ -25,7 +25,7 @@ public class MaxCycleMST {
         return result;
     }
 
-    static public class HelperClass {
+     public class HelperClass {
         private boolean[] visited;
         //  private boolean[] inCurrentPath;
         private UndirectedWeightedGraph graph;
@@ -131,7 +131,7 @@ public class MaxCycleMST {
 
 
 
-        UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph graphs, int originalVcount) {
+        public UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph graphs, int originalVcount) {
           //  int originalVcount = graphs.vCount();
             UndirectedWeightedGraph copy = graphs.shallowCopy();
 
@@ -163,13 +163,13 @@ public class MaxCycleMST {
 
     // UndirectedWeightedGraph mstGraph;
 
-    MaxCycleMST(UndirectedWeightedGraph g) {
+    public MaxCycleMST(UndirectedWeightedGraph g) {
         ogGraph = g;
         mstGraph = new UndirectedWeightedGraph(ogGraph.vCount());
     }
 
 
-    UndirectedWeightedGraph buildMST() {
+    public UndirectedWeightedGraph buildMST() {
         int nVertices = ogGraph.vCount();
 
         HashMap<UndirectedEdge, Boolean>  hashMap = new HashMap<UndirectedEdge, Boolean>();
@@ -205,16 +205,24 @@ public class MaxCycleMST {
                 }
             }
         }
-        System.out.println();
+      //  System.out.println();
         return mstGraph;
     }
-    /*UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph g) {
-        max
-    }*/
+    public UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph g) {
+
+        HelperClass helperClass = new HelperClass(g);
+
+
+        int mstVcount = 0;
+        for ( UndirectedEdge edge : ogGraph.adj(0))
+            mstVcount = helperClass.coutVerticesGraph(g, edge.v1());
+
+        return helperClass.determineMaxInCycle(g, mstVcount);
+    }
 
 
 
-    UndirectedWeightedGraph getMST() {
+    public UndirectedWeightedGraph getMST() {
         //buildMST();
         return mstGraph;
     }
