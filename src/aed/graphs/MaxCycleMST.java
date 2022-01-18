@@ -77,13 +77,14 @@ public class MaxCycleMST {
 
             this.visited[v] = true;
             //stack.clear();
-           // if (fromEdge != null)
-             //   stack.push(fromEdge);
+            if (fromEdge != null)
+                stack.push(fromEdge);
             for(UndirectedEdge adj : graph.adj(v))
             {
-                stack.push(adj);
                 if(this.hasCycle) return;
                 if (visitedEdgesMap.get(adj) == null || visitedEdgesMap.get(adj) == false) {
+                  //  stack.push(adj);
+
                     //maxPQ.add(adj);
                     //stack.push(adj);
 
@@ -108,6 +109,7 @@ public class MaxCycleMST {
               //  if(!stack.isEmpty())
                 //    stack.pop();
             }
+
             if(!stack.isEmpty()) {
                 UndirectedEdge edgePop = stack.pop();
                 visitedEdgesMap.put(edgePop, false);
