@@ -45,7 +45,7 @@ public class MaxCycleMST {
                 this.visited[i] = false;
                 //  this.inCurrentPath[i] = false;
             }
-            visit(0, -1);
+            visit(0, -1, null);
         }
 
         private int coutVerticesGraph(UndirectedWeightedGraph graph, int v) {
@@ -72,18 +72,22 @@ public class MaxCycleMST {
 
         }
 
-        private void visit(int v, int parent)
+        private void visit(int v, int parent, UndirectedEdge fromEdge)
         {
 
             this.visited[v] = true;
             //stack.clear();
+           // if (fromEdge != null)
+             //   stack.push(fromEdge);
             for(UndirectedEdge adj : graph.adj(v))
             {
+                stack.push(adj);
                 if(this.hasCycle) return;
                 if (visitedEdgesMap.get(adj) == null || visitedEdgesMap.get(adj) == false) {
                     //maxPQ.add(adj);
                     //stack.push(adj);
-                    stack.push(adj);
+
+                   // stack.push(adj);
 
                     visitedEdgesMap.put(adj, true);
                 }
@@ -98,11 +102,11 @@ public class MaxCycleMST {
 
                 if (!visited[v1])
                 {
-                    visit(v1, v);
+                    visit(v1, v, adj);
                     //stack.clear();
                 }
-                //if(!stack.isEmpty())
-                  //  stack.pop();
+              //  if(!stack.isEmpty())
+                //    stack.pop();
             }
             if(!stack.isEmpty()) {
                 UndirectedEdge edgePop = stack.pop();
