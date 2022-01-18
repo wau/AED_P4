@@ -43,7 +43,7 @@ public class UndirectedEdge implements Comparable<UndirectedEdge>{
     {
         if(this.weight < other.weight) return -1;
         else if(this.weight > other.weight) return 1;
-        else return 0;
+        else return this.v1-other.v1;
     }
 
     @Override

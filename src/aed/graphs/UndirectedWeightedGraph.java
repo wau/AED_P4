@@ -2,6 +2,7 @@ package aed.graphs;
 
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 public class UndirectedWeightedGraph {
@@ -9,7 +10,7 @@ public class UndirectedWeightedGraph {
     private int vCount;
     private int eCount;
     private Object[] adj;
-    private Hashtable<Integer, UndirectedEdge> edges;
+    private Hashtable<UndirectedEdge, UndirectedEdge> edges;
 
     @SuppressWarnings("unchecked")
     public UndirectedWeightedGraph(int vCount)
@@ -17,7 +18,7 @@ public class UndirectedWeightedGraph {
         this.vCount = vCount;
         this.eCount = 0;
         this.adj = new Object[vCount];
-        this.edges = new Hashtable<Integer,UndirectedEdge>();
+        this.edges = new Hashtable<UndirectedEdge,UndirectedEdge>();
 
         //Initialise all adjacency lists
         for(int i = 0 ; i < vCount; i++)
@@ -31,7 +32,7 @@ public class UndirectedWeightedGraph {
     {
         ((LinkedList<UndirectedEdge>)this.adj[e.v1()]).add(e);
         ((LinkedList<UndirectedEdge>)this.adj[e.v2()]).add(e);
-        this.edges.put(e.hashCode(),e);
+        this.edges.put(e,e);
         this.eCount++;
     }
 
@@ -40,7 +41,7 @@ public class UndirectedWeightedGraph {
     {
         ((LinkedList<UndirectedEdge>)this.adj[e.v1()]).remove(e);
         ((LinkedList<UndirectedEdge>)this.adj[e.v2()]).remove(e);
-        this.edges.remove(e.hashCode());
+        this.edges.remove(e);
         this.eCount--;
     }
 
@@ -106,7 +107,7 @@ public class UndirectedWeightedGraph {
             ((LinkedList<UndirectedEdge>)copy.adj[i]).addAll((LinkedList<UndirectedEdge>)this.adj[i]);
         }
 
-        copy.edges = (Hashtable<Integer,UndirectedEdge>)this.edges.clone();
+        copy.edges = (Hashtable<UndirectedEdge,UndirectedEdge>)this.edges.clone();
 
         return copy;
     }
@@ -119,11 +120,33 @@ public class UndirectedWeightedGraph {
         for(int i = 0; i < this.vCount ; i++)
         {
             s+= i + ": ";
-            for(UndirectedEdge e : ((LinkedList<UndirectedEdge>)this.adj[i]))
-            {
-                s+= e.toString() + "; ";
-            }
+            s+=listToString((LinkedList<UndirectedEdge>)this.adj[i],Integer.MAX_VALUE);
             s += "\n";
+        }
+
+        return s;
+    }
+
+    private String listToString(LinkedList<UndirectedEdge> list, int max)
+    {
+        //this is inefficient, but we need to do it for comparison reasons
+        PriorityQueue<UndirectedEdge> pq = new PriorityQueue<UndirectedEdge>();
+        for(UndirectedEdge e : list)
+        {
+            pq.add(e);
+        }
+
+        String s = "";
+        int i = 0;
+        while(!pq.isEmpty())
+        {
+            UndirectedEdge e = pq.remove();
+            if(i++ >= max)
+            {
+                s+= "...;";
+                return s;
+            }
+            s+= e.toString() + "; ";
         }
 
         return s;
@@ -132,23 +155,12 @@ public class UndirectedWeightedGraph {
     @SuppressWarnings("unchecked")
     public String summary()
     {
-        int j;
         String s = "V: " + this.vCount + " E: " + this.eCount + "\n";
         s += "Weight: " + totalWeight() + "\n";
         for(int i = 0; i < this.vCount ; i++)
         {
             s+= i + ": ";
-            j = 0;
-            for(UndirectedEdge e : ((LinkedList<UndirectedEdge>)this.adj[i]))
-            {
-                s+= e.toString() + "; ";
-                j++;
-                if(j>=3)
-                {
-                    s+= "...;";
-                    break;
-                }
-            }
+            s+=listToString((LinkedList<UndirectedEdge>)this.adj[i],3);
             s += "\n";
             if(i >= 3)
             {
@@ -165,9 +177,9 @@ public class UndirectedWeightedGraph {
         UndirectedWeightedGraph g = new UndirectedWeightedGraph(sc.nextInt());
         int v1,v2;
         float weight;
-        g.eCount = sc.nextInt();
+        int edges = sc.nextInt();
 
-        for(int i = 0; i < g.eCount; i++)
+        for(int i = 0; i < edges; i++)
         {
             v1 = sc.nextInt();
             v2 = sc.nextInt();
