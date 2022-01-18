@@ -10,29 +10,17 @@ public class MaxCycleMST {
     int i = 0;
     boolean buildMstCalled = false;
 
-
-    int calculatePathWeight(UndirectedWeightedGraph g) {
-        int result = 0;
-        HashMap<UndirectedEdge, Boolean>  hashMap = new HashMap<UndirectedEdge, Boolean>();
-        for (int i = 0; i < g.vCount(); i++) {
-            for ( UndirectedEdge edge : g.adj(i)) {
-                // System.out.println(hashMap.toString());
-                if (hashMap.get(edge) == null || hashMap.get(edge) == false) {
-                    hashMap.put(edge, true);
-                    result += edge.weight();
-                }
-            }
-        }
-        return result;
-    }
-
-     public class HelperClass {
+     public static class HelperClass {
         private boolean[] visited;
         //  private boolean[] inCurrentPath;
         private UndirectedWeightedGraph graph;
         private boolean hasCycle;
 
         PriorityQueue<UndirectedEdge> maxPQ = new PriorityQueue<>(Collections.reverseOrder());
+
+        public Stack<UndirectedEdge> stack = new Stack<>();
+
+        int starEndOfCycle = -1;
 
         private UndirectedEdge heaviestEdge;
         int countModified;
@@ -58,11 +46,6 @@ public class MaxCycleMST {
                 //  this.inCurrentPath[i] = false;
             }
             visit(0, -1);
-            /*for (int i = 0; i < vertices; i++) {
-                //start a new search for each vertex that has not been visited yet
-                if (!this.visited[i]) visit(i, i-1);
-                if (this.hasCycle) return;
-            }*/
         }
 
         private int coutVerticesGraph(UndirectedWeightedGraph graph, int v) {
@@ -91,39 +74,42 @@ public class MaxCycleMST {
 
         private void visit(int v, int parent)
         {
-            //this.inCurrentPath[v] = true;
+
             this.visited[v] = true;
+            //stack.clear();
             for(UndirectedEdge adj : graph.adj(v))
             {
                 if(this.hasCycle) return;
-
                 if (visitedEdgesMap.get(adj) == null || visitedEdgesMap.get(adj) == false) {
-                    maxPQ.add(adj);
+                    //maxPQ.add(adj);
+                    //stack.push(adj);
+                    stack.push(adj);
+
                     visitedEdgesMap.put(adj, true);
                 }
-
-
-
                 int v1 = adj.other(v);
-
-
-                // System.out.println("Visiting: " + adj.toString());
 
                 if (visited[v1] && v1 != parent) {
                     this.hasCycle = true;
-                    //return;
-                    /*if (heaviestEdge == null || adj.compareTo(heaviestEdge) > 0) {
-                        heaviestEdge = adj;
-                        System.out.println("Heaviest: " + " " + adj.toString());
-                    }*/
+                    starEndOfCycle = v1;
+                    return;
                 }
+
 
                 if (!visited[v1])
                 {
-               //     maxPQ.add(adj);
                     visit(v1, v);
+                    //stack.clear();
                 }
+                //if(!stack.isEmpty())
+                  //  stack.pop();
             }
+            if(!stack.isEmpty()) {
+                UndirectedEdge edgePop = stack.pop();
+                visitedEdgesMap.put(edgePop, false);
+            }
+
+
         }
         public boolean hasCycle()
         {
@@ -133,17 +119,32 @@ public class MaxCycleMST {
 
 
 
-        public UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph graphs, int originalVcount) {
-          //  int originalVcount = graphs.vCount();
-            UndirectedWeightedGraph copy = graphs.shallowCopy();
+        public UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph graphs) {
+            System.out.println(stack.toString());
+            maxPQ.add(stack.pop());
 
+            UndirectedEdge start = stack.pop();
+            maxPQ.add(start);
 
-            int size = maxPQ.size();
+            int v = start.v1(); //initialize v
+            //System.out.println(v);
 
-         //   System.out.println(size);
-           // System.out.println(Arrays.stream(maxPQ.toArray()).toList());
+            int size = stack.size();
 
             for (int i = 0; i < size; i++) {
+                UndirectedEdge edge = stack.pop();
+                // System.out.println("test" + " " +edge.toString());
+                v = edge.other(v);
+                //System.out.println(v);
+                maxPQ.add(edge);
+                   //System.out.println("edge added" + " " +edge.toString());
+                if (v == starEndOfCycle) {
+                    break;
+                }
+            }
+         //   System.out.println(maxPQ.toString());
+            return maxPQ.remove();
+            /*for (int i = 0; i < size; i++) {
                 UndirectedEdge edge = maxPQ.remove();
                 copy.removeEdge(edge);
                 int countnew = coutVerticesGraph(copy, edge.v1());
@@ -151,8 +152,8 @@ public class MaxCycleMST {
                     return edge; // can remove this edge
 
                 copy.addEdge(edge);
-            }
-            return null;
+            }*/
+            //return null;
         }
 
     }
@@ -166,7 +167,7 @@ public class MaxCycleMST {
     // UndirectedWeightedGraph mstGraph;
 
     public MaxCycleMST(UndirectedWeightedGraph g) {
-        ogGraph = g;
+        ogGraph = g.shallowCopy();
         mstGraph = new UndirectedWeightedGraph(ogGraph.vCount());
     }
 
@@ -190,40 +191,48 @@ public class MaxCycleMST {
                  //   System.out.println(mstGraph.toString());
 
                     HelperClass helperClass = new HelperClass(mstGraph);
-
-
                     helperClass.search();
+               //     System.out.println(helperClass.stack.toString());
+                   /* for (UndirectedEdge test : helperClass.stack) {
+
+                        System.out.println();
+
+                    }*/
                     if (helperClass.hasCycle())
                     {
-                        mstVcount = helperClass.coutVerticesGraph(mstGraph, edge.v1());
+                        //mstVcount = helperClass.coutVerticesGraph(mstGraph, edge.v1());
 
-                        UndirectedEdge maxEdge = helperClass.determineMaxInCycle(mstGraph, mstVcount);
-                        //if (maxEdge != null)
+                        UndirectedEdge maxEdge = helperClass.determineMaxInCycle(mstGraph);
                         mstGraph.removeEdge(maxEdge);
-
-                      //  hashMap.put(maxEdge, false);
                     }
-                   // System.out.println("step: " + i++ + mstGraph.toString());
-
                 }
             }
         }
-      //  System.out.println();
         return mstGraph;
     }
     public UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph g) {
+        PriorityQueue<UndirectedEdge> maxPQ = new PriorityQueue<>(Collections.reverseOrder());
 
-        HelperClass helperClass = new HelperClass(g);
+        UndirectedWeightedGraph copyG = g.shallowCopy();
 
 
-        int mstVcount = 0;
+        HelperClass helperClass = new HelperClass(copyG);
+
         helperClass.search();
 
-        for ( UndirectedEdge edge : g.adj(0))
-            mstVcount = helperClass.coutVerticesGraph(g, edge.v1());
+        while (helperClass.hasCycle()) {
+            UndirectedEdge maxEdge = helperClass.determineMaxInCycle(copyG);
+            if (maxEdge != null) {
+                copyG.removeEdge(maxEdge);
+                maxPQ.add(maxEdge);
+            }
 
-      //  System.out.println(mstVcount);
-        return helperClass.determineMaxInCycle(g, mstVcount);
+            helperClass = new HelperClass(copyG);
+            helperClass.search();
+        }
+        if (maxPQ.isEmpty())
+            return null;
+        else return maxPQ.remove();
     }
 
 
@@ -235,34 +244,25 @@ public class MaxCycleMST {
         else return null;
     }
 
-    public void test() {
-        UndirectedWeightedGraph test = new UndirectedWeightedGraph(7);
-
-        test.addEdge(new UndirectedEdge(0, 2, 3));
-        test.addEdge(new UndirectedEdge(0, 3, 2));
-        test.addEdge(new UndirectedEdge(0, 1, 2));
-
-        HelperClass helper = new HelperClass(test);
-
-        helper.search();
-
-        System.out.println(helper.hasCycle());
-    }
-
-
     public static void main(String[] args) {
-        UndirectedWeightedGraph test = new UndirectedWeightedGraph(7);
-       /* test.addEdge(new UndirectedEdge(0, 3, 1));
-        test.addEdge(new UndirectedEdge(2, 3, 1));
-        test.addEdge(new UndirectedEdge(2, 1, 2));
-        test.addEdge(new UndirectedEdge(2, 4, 1));
-        test.addEdge(new UndirectedEdge(3, 4, 3));
-        test.addEdge(new UndirectedEdge(4, 5, 1));*/
-        /*
-        A-0/B-1/C-2/D-3/E-4/F-5/G-6
-         */
+        UndirectedWeightedGraph test = new UndirectedWeightedGraph(6);
 
-        test.addEdge(new UndirectedEdge(0, 1, 2));
+        test.addEdge(new UndirectedEdge(0, 1, 50));
+        test.addEdge(new UndirectedEdge(1, 2, 4));
+        test.addEdge(new UndirectedEdge(2, 3, 1));
+        test.addEdge(new UndirectedEdge(3, 4, 2));
+        test.addEdge(new UndirectedEdge(4, 5, 50));
+        test.addEdge(new UndirectedEdge(4, 1, 3));
+
+       /* test.addEdge(new UndirectedEdge(0, 1, 7));
+        test.addEdge(new UndirectedEdge(1, 2, 20));
+        test.addEdge(new UndirectedEdge(2, 3, 2));
+        test.addEdge(new UndirectedEdge(3, 4, 5));
+       // test.addEdge(new UndirectedEdge(2, 4, 3));
+        test.addEdge(new UndirectedEdge(4, 5, 200));
+        test.addEdge(new UndirectedEdge(2, 5, 250));*/
+
+      /*  test.addEdge(new UndirectedEdge(0, 1, 2));
         test.addEdge(new UndirectedEdge(0, 2, 3));
         test.addEdge(new UndirectedEdge(2, 3, 1));
         test.addEdge(new UndirectedEdge(0, 3, 1));
@@ -276,35 +276,38 @@ public class MaxCycleMST {
 
         test.addEdge(new UndirectedEdge(    6, 5, 1));
         test.addEdge(new UndirectedEdge(    2, 6, 1));
-        test.addEdge(new UndirectedEdge(    2, 6, 3));
-
-       /* test.addEdge(new UndirectedEdge(    0, 1, 4));
-        test.addEdge(new UndirectedEdge(    1, 2, 3));
-        test.addEdge(new UndirectedEdge(    0, 2, 5));*/
-
-        MaxCycleMST maxCycleMST = new MaxCycleMST(test);
+        test.addEdge(new UndirectedEdge(    2, 6, 3));*/
 
         //System.out.println(maxCycleMST.determineMaxInCycle(test));
+       /*test.addEdge(new UndirectedEdge(0, 1, 3));
+        test.addEdge(new UndirectedEdge(1 ,2, 4));
+        test.addEdge(new UndirectedEdge(2, 3, 4));
+        test.addEdge(new UndirectedEdge(0, 4, 30));
+        test.addEdge(new UndirectedEdge(4,6,350));
+       // test.addEdge(new UndirectedEdge(6, 5, 6));
+        test.addEdge(new UndirectedEdge(5, 4, 300));
+        test.addEdge(new UndirectedEdge (5, 6, 390));
+        test.addEdge(new UndirectedEdge (5, 8, 900));
+        test.addEdge(new UndirectedEdge (7, 8, 10));
+        test.addEdge(new UndirectedEdge (8, 6, 2));*/
+
+       /* test.addEdge(new UndirectedEdge(0 ,1, 3));
+        test.addEdge(new UndirectedEdge(0 ,3, 6));
+        test.addEdge(new UndirectedEdge(1 ,3, 7));
+        test.addEdge(new UndirectedEdge(1 ,2, 8));
+        test.addEdge(new UndirectedEdge(2 ,3, 4));
+        test.addEdge(new UndirectedEdge(3 ,6, 5));
+        test.addEdge(new UndirectedEdge(2 ,6, 3));
+        test.addEdge(new UndirectedEdge(6 ,4, 1));
+        test.addEdge(new UndirectedEdge(6 ,5, 9));
+        test.addEdge(new UndirectedEdge(6 ,5, 9));
+        test.addEdge(new UndirectedEdge(4 ,5, 8));
+        test.addEdge(new UndirectedEdge(4 ,1, 8));
+        test.addEdge(new UndirectedEdge(6 ,5, 9));
+        test.addEdge(new UndirectedEdge(2,4, 2));*/
 
 
-
-
-
-
-        /*test.addEdge(new UndirectedEdge(0, 2, 3));
-        test.addEdge(new UndirectedEdge(0, 3, 2));
-        test.addEdge(new UndirectedEdge(0, 1, 2));
-
-        /*test.addEdge(new UndirectedEdge(0,4,3));
-        test.addEdge(new UndirectedEdge(4,7,9));
-        test.addEdge(new UndirectedEdge(7,3,5));
-        test.addEdge(new UndirectedEdge(3,5,5));
-        test.addEdge(new UndirectedEdge(5,1,8));
-        test.addEdge(new UndirectedEdge(5,1,2));
-        test.addEdge(new UndirectedEdge(1,2,6));
-        test.addEdge(new UndirectedEdge(2,6,9));*/
-
-        /*MaxCycleMST maxCycleMST = new MaxCycleMST(test);
+       /* MaxCycleMST maxCycleMST = new MaxCycleMST(test);
 
         HelperClass helperClass = new HelperClass(test);
 
@@ -319,21 +322,23 @@ public class MaxCycleMST {
         System.out.println(cycleDetector.determineMaxInCycle(test, Vcount).toString());*/
 
 
-      //  MaxCycleMST maxCycleMST = new MaxCycleMST(test);
+
+        MaxCycleMST maxCycleMST = new MaxCycleMST(test);
+
+
         LazyPrim lazyPrim = new LazyPrim(test);
+
+        System.out.println("Max edge: "  + maxCycleMST.determineMaxInCycle(test));
 
         lazyPrim.buildMST();
 
         System.out.println(lazyPrim.getMST().toString());
 
-        System.out.println(maxCycleMST.calculatePathWeight(lazyPrim.getMST()));
         System.out.println("------------------ mine");
 
         maxCycleMST.buildMST();
-        System.out.println("final");
 
         System.out.println(maxCycleMST.getMST().toString());
-        System.out.println(maxCycleMST.calculatePathWeight(maxCycleMST.getMST()));
 
     }
 
