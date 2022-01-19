@@ -11,7 +11,8 @@ public class MaxCycleMST {
     int i = 0;
     boolean buildMstCalled;
 
-     public static class HelperClass {
+
+    public static class HelperClass {
         private boolean[] visited;
         //  private boolean[] inCurrentPath;
         private UndirectedWeightedGraph graph;
@@ -27,64 +28,64 @@ public class MaxCycleMST {
         private boolean[] visitedModified;
 
 
-
         public HelperClass(UndirectedWeightedGraph g) {
             this.graph = g;
             this.visited = new boolean[g.vCount()];
             this.countModified = 0;
             starEndOfCycle = -1;
             stack = new Stack<>();
-            //    this.inCurrentPath = new boolean[g.vCount()];
         }
 
         public void search() {
             int vertices = this.graph.vCount();
             this.hasCycle = false;
-            //initialize array to false
+
             for (int i = 0; i < vertices; i++) {
-                this.visited[i] = false;
-                //  this.inCurrentPath[i] = false;
-            }
-
-            //visit(0, -1, null);
-
-            for(int i = 0; i < vertices; i++) {
                 //if (!stack.isEmpty())
-                  //  stack.clear();
-                if(!this.visited[i]) visit(i, -1, null);
-                if(this.hasCycle) return;
+                //  stack.clear();
+                if (!this.visited[i]) visit(i, -1, null);
+                if (this.hasCycle) return;
             }
         }
 
-        private int coutVerticesGraph(UndirectedWeightedGraph graph, int v) {
-            countModified = 0;
-            visitedModified = new boolean[graph.vCount()];
+        public void betterSearch() {
+            int vertices = this.graph.vCount();
+            this.hasCycle = false;
 
-            for (int i = 0; i < graph.vCount(); i++) {
-                visitedModified[i] = false;
+            for (int i = 0; i < vertices; i++) {
+                //if (!stack.isEmpty())
+                //  stack.clear();
+                if (this.hasCycle) return;
+                if (!this.visited[i]) betterVisit(i, -1);
+
             }
-
-            modifiedVisit(graph, v);
-            return countModified;
         }
 
-        private void modifiedVisit(UndirectedWeightedGraph graph, int v) {
-            visitedModified[v] = true;
-            countModified++;
 
-            for(UndirectedEdge adj : graph.adj(v)) {
+        private void betterVisit(int v, int parent) {
+            this.visited[v] = true;
+
+            for (UndirectedEdge adj : graph.adj(v)) {
+                if (this.hasCycle) return;
                 int v1 = adj.other(v);
-                if (!visitedModified[v1])
-                    modifiedVisit(graph, v1);
+
+                if (visited[v1] && v1 != parent) {
+                    this.hasCycle = true;
+                    return;
+                }
+                if (!visited[v1]) {
+                    betterVisit(v1, v);
+                }
             }
+
         }
 
         private void visit(int v, int parent, UndirectedEdge fromEdge) {
             this.visited[v] = true;
             if (fromEdge != null)
                 stack.push(fromEdge);
-            for(UndirectedEdge adj : graph.adj(v)) {
-                if(this.hasCycle) return;
+            for (UndirectedEdge adj : graph.adj(v)) {
+                if (this.hasCycle) return;
                 int v1 = adj.other(v);
 
                 if (visited[v1] && v1 != parent) {
@@ -97,31 +98,27 @@ public class MaxCycleMST {
                     visit(v1, v, adj);
                 }
             }
-            if(!stack.isEmpty() && !this.hasCycle) {
+            if (!stack.isEmpty() && !this.hasCycle) {
                 //UndirectedEdge edgePop = stack.pop();
                 stack.pop();
             }
         }
-        public boolean hasCycle()
-        {
+
+        public boolean hasCycle() {
             return this.hasCycle;
         }
 
         public UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph graphs) {
             UndirectedEdge max = stack.pop();
 
-           // UndirectedEdge start = stack.pop();
-            //if (start.compareTo(max) > 0)
-              //  max = start;
-
-            int size = stack.size();
-            for (int i = 0; i < size; i++) {
+            while (!stack.isEmpty()) {
+                //   for (int i = 0; i < size; i++) {
                 UndirectedEdge edge = stack.pop();
 
                 if (edge.compareTo(max) > 0)
                     max = edge;
 
-                if (edge.v1()  == starEndOfCycle || edge.v2() == starEndOfCycle) {
+                if (edge.v1() == starEndOfCycle || edge.v2() == starEndOfCycle) {
                     break;
                 }
             }
@@ -129,18 +126,75 @@ public class MaxCycleMST {
         }
     }
 
+
+
+
+    public static class BetterHelperClass {
+
+        private boolean[] visited;
+        private UndirectedWeightedGraph graph;
+        private boolean hasCycle;
+
+
+        public BetterHelperClass(UndirectedWeightedGraph g) {
+            this.graph = g;
+            this.visited = new boolean[g.vCount()];
+        }
+
+        public void betterSearch () {
+            int vertices = this.graph.vCount();
+            this.hasCycle = false;
+
+            for (int i = 0; i < vertices; i++) {
+
+                if (this.hasCycle) return;
+                if (!this.visited[i]) betterVisit(i, -1);
+
+            }
+        }
+
+
+        private void betterVisit ( int v, int parent){
+            this.visited[v] = true;
+
+            for (UndirectedEdge adj : graph.adj(v)) {
+                if (this.hasCycle) return;
+                int v1 = adj.other(v);
+
+                if (visited[v1] && v1 != parent) {
+                    this.hasCycle = true;
+                    return;
+                }
+                if (!visited[v1]) {
+                    betterVisit(v1, v);
+                }
+            }
+        }
+        public boolean hasCycle () {
+            return this.hasCycle;
+        }
+
+    }
+
     private UndirectedWeightedGraph ogGraph;
     private UndirectedWeightedGraph mstGraph;
+    private PriorityQueue<UndirectedEdge> minPQ = new PriorityQueue<>();
+
 
     public MaxCycleMST(UndirectedWeightedGraph g) {
-        ogGraph = g.shallowCopy();
+        ogGraph = g;//.shallowCopy();
         mstGraph = new UndirectedWeightedGraph(ogGraph.vCount());
 
+        for (UndirectedEdge e : ogGraph.allEdges()) {
+            minPQ.add(e);
+        }
         buildMstCalled = false;
     }
 
 
-    public UndirectedWeightedGraph buildMST() {
+
+
+    /*public UndirectedWeightedGraph buildMST() {
         buildMstCalled = true;
 
         for(UndirectedEdge edge : ogGraph.allEdges()) {
@@ -156,9 +210,37 @@ public class MaxCycleMST {
 
         }
         return mstGraph;
+    }*/
+
+    public UndirectedWeightedGraph buildMST() {
+        buildMstCalled = true;
+
+       // int size = minPQ.size();
+        boo vertices[] = new int[ogGraph.vCount()];
+        while (!minPQ.isEmpty()) {
+            UndirectedEdge edge = minPQ.remove();
+            mstGraph.addEdge(edge);
+
+
+            if (mstGraph.eCount() >= mstGraph) {
+                BetterHelperClass betterHelperClass = new BetterHelperClass(mstGraph);
+                betterHelperClass.betterSearch();
+
+                if (betterHelperClass.hasCycle())
+                    mstGraph.removeEdge(edge);
+            }
+
+
+            if (mstGraph.eCount()+1 == mstGraph.vCount())
+                break;
+        }
+
+        return mstGraph;
     }
+
+
     public UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph g) {
-        PriorityQueue<UndirectedEdge> maxPQ = new PriorityQueue<>(Collections.reverseOrder());
+        /*PriorityQueue<UndirectedEdge> maxPQ = new PriorityQueue<>(Collections.reverseOrder());
         UndirectedWeightedGraph copyG = g.shallowCopy();
 
         HelperClass helperClass = new HelperClass(copyG);
@@ -176,7 +258,13 @@ public class MaxCycleMST {
         }
         if (maxPQ.isEmpty())
             return null;
-        else return maxPQ.remove();
+        else return maxPQ.remove();*/
+        HelperClass helperClass = new HelperClass(g);
+        helperClass.search();
+        if (helperClass.hasCycle()) {
+            return helperClass.determineMaxInCycle(mstGraph);
+        }
+        else return null;
     }
 
 
