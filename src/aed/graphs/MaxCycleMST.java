@@ -7,11 +7,8 @@ import java.awt.*;
 import java.util.*;
 
 public class MaxCycleMST {
-
     int i = 0;
     boolean buildMstCalled;
-
-
     public static class HelperClass {
         private boolean[] visited;
         //  private boolean[] inCurrentPath;
@@ -46,38 +43,6 @@ public class MaxCycleMST {
                 if (!this.visited[i]) visit(i, -1, null);
                 if (this.hasCycle) return;
             }
-        }
-
-        public void betterSearch() {
-            int vertices = this.graph.vCount();
-            this.hasCycle = false;
-
-            for (int i = 0; i < vertices; i++) {
-                //if (!stack.isEmpty())
-                //  stack.clear();
-                if (this.hasCycle) return;
-                if (!this.visited[i]) betterVisit(i, -1);
-
-            }
-        }
-
-
-        private void betterVisit(int v, int parent) {
-            this.visited[v] = true;
-
-            for (UndirectedEdge adj : graph.adj(v)) {
-                if (this.hasCycle) return;
-                int v1 = adj.other(v);
-
-                if (visited[v1] && v1 != parent) {
-                    this.hasCycle = true;
-                    return;
-                }
-                if (!visited[v1]) {
-                    betterVisit(v1, v);
-                }
-            }
-
         }
 
         private void visit(int v, int parent, UndirectedEdge fromEdge) {
@@ -141,16 +106,22 @@ public class MaxCycleMST {
             this.visited = new boolean[g.vCount()];
         }
 
-        public void betterSearch () {
+        public void betterSearch (int[] couple) {
             int vertices = this.graph.vCount();
             this.hasCycle = false;
 
-            for (int i = 0; i < vertices; i++) {
+
+            for (int i = 0; i < couple.length; i++) {
+            //for(Integer ve : setOfKeys) {
 
                 if (this.hasCycle) return;
-                if (!this.visited[i]) betterVisit(i, -1);
+                //if (!this.visited[table.get(ve)]) betterVisit(table.get(ve), -1);
+                if (!this.visited[couple[i]]) betterVisit(couple[i], -1);
+
 
             }
+
+            //}
         }
 
 
@@ -216,18 +187,17 @@ public class MaxCycleMST {
         buildMstCalled = true;
 
        // int size = minPQ.size();
-        boo vertices[] = new int[ogGraph.vCount()];
+        //boo vertices[] = new int[ogGraph.vCount()];
         while (!minPQ.isEmpty()) {
             UndirectedEdge edge = minPQ.remove();
             mstGraph.addEdge(edge);
 
 
-            if (mstGraph.eCount() >= mstGraph) {
-                BetterHelperClass betterHelperClass = new BetterHelperClass(mstGraph);
-                betterHelperClass.betterSearch();
+            BetterHelperClass betterHelperClass = new BetterHelperClass(mstGraph);
+            betterHelperClass.betterSearch(new int[]{edge.v1(), edge.v2()});
 
-                if (betterHelperClass.hasCycle())
-                    mstGraph.removeEdge(edge);
+            if (betterHelperClass.hasCycle()) {
+                mstGraph.removeEdge(edge);
             }
 
 
@@ -240,25 +210,7 @@ public class MaxCycleMST {
 
 
     public UndirectedEdge determineMaxInCycle(UndirectedWeightedGraph g) {
-        /*PriorityQueue<UndirectedEdge> maxPQ = new PriorityQueue<>(Collections.reverseOrder());
-        UndirectedWeightedGraph copyG = g.shallowCopy();
 
-        HelperClass helperClass = new HelperClass(copyG);
-
-        helperClass.search();
-
-        while (helperClass.hasCycle()) {
-            UndirectedEdge maxEdge = helperClass.determineMaxInCycle(copyG);
-            if (maxEdge != null) {
-                copyG.removeEdge(maxEdge);
-                maxPQ.add(maxEdge);
-            }
-            helperClass = new HelperClass(copyG);
-            helperClass.search();
-        }
-        if (maxPQ.isEmpty())
-            return null;
-        else return maxPQ.remove();*/
         HelperClass helperClass = new HelperClass(g);
         helperClass.search();
         if (helperClass.hasCycle()) {
@@ -266,8 +218,6 @@ public class MaxCycleMST {
         }
         else return null;
     }
-
-
 
     public UndirectedWeightedGraph getMST() {
         //buildMST();
@@ -385,12 +335,7 @@ public class MaxCycleMST {
 
 
         LazyPrim lazyPrim = new LazyPrim(test);
-        //UndirectedEdge maxEdge1 = maxCycleMST.determineMaxInCycle(test);
-        //System.out.println("Max edge 1: "  +maxEdge1);
 
-       // test.removeEdge(maxCycleMST.determineMaxInCycle(test));
-
-        //System.out.println("Max edge 2: "  + maxCycleMST.determineMaxInCycle(test));
 
 
         lazyPrim.buildMST();
